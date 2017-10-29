@@ -6,7 +6,7 @@ RUN cd /srv/shiny-server \
         && git clone https://github.com/OwnYourData/app-note.git \ 
         && mv app-note/* . \
         && rm -r app-note \
-        && R -e "source('init.r')"
+        && R -e "source('init.R')"
 
 EXPOSE 3838
 
