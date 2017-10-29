@@ -1,0 +1,23 @@
+#!/bin/bash
+
+CONTINUE=true
+command -v jq >/dev/null 2>&1 || { echo >&2 "Fehler: JSON processor 'jq' ist nicht installiert."; CONTINUE=false;}
+
+if $CONTINUE; then
+
+	. ~/.oyd_note
+	#export PIA_URL=http://localhost:8080
+	#export APP_KEY=eu.ownyourdata.note
+	#export APP_SECRET=Z3Lj8VafuNLoqWThkdD6
+	export TOKEN=`curl -s $APP_KEY:$APP_SECRET@${PIA_URL:7:100}/oauth/token -d grant_type=client_credentials | jq -r '.access_token'`
+	INPUT="$*"
+
+	export CONTENT="{\"created_at\": \"`date -u +"%Y-%m-%dT%H:%M:%SZ"`\", \
+		\"version\": \"0.4\", \
+		\"value\": \"{\\\"title\\\":\\\"Notiz am `date +"%d.%m.%Y um %T"`\\\", \\\"text\\\":\\\"$INPUT\\\"}\"}"
+	curl -s -H "Content-Type: application/json" \
+		-H "Authorization: Bearer $TOKEN" \
+		-X POST -d "$CONTENT" \
+		$PIA_URL/api/repos/$APP_KEY/items >/dev/null
+
+fi
